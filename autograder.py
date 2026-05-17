@@ -16,7 +16,27 @@
 
 # imports from python standard library
 import grading
-import imp
+try:
+    import imp
+except ModuleNotFoundError:
+    import importlib.util
+    import types
+
+    class _ImpCompat:
+        PY_SOURCE = None
+
+        @staticmethod
+        def new_module(name):
+            return types.ModuleType(name)
+
+        @staticmethod
+        def load_module(moduleName, fileObj, filePath, description):
+            spec = importlib.util.spec_from_file_location(moduleName, filePath)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
+
+    imp = _ImpCompat()
 import optparse
 import os
 import re
